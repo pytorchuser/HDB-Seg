@@ -15,6 +15,7 @@ from .oct import OCTDataset
 from .oct_duke2015 import OCTDuke2015Dataset
 from .oct_duke2013 import OCTDuke2013Dataset
 from .oct_hcms2018 import OCTHCMS2018Dataset
+from .oct_needle import OCTNeedleDataset
 from .isaid import iSAIDDataset
 from .isprs import ISPRSDataset
 from .lip import LIPDataset
@@ -47,7 +48,7 @@ __all__ = [
     'DRIVEDataset', 'HRFDataset', 'STAREDataset', 'DarkZurichDataset',
     'NightDrivingDataset', 'COCOStuffDataset', 'LoveDADataset',
     'MultiImageMixDataset', 'iSAIDDataset', 'ISPRSDataset', 'PotsdamDataset',
-    'FaceOccludedDataset',
+    'FaceOccludedDataset', 'OCTNeedleDataset',
     'OCTDataset', 'OCTDuke2015Dataset', 'OCTDuke2013Dataset', 'OCTHCMS2018Dataset',
     'LoadAnnotations', 'RandomCrop', 'SegRescale', 'PhotoMetricDistortion',
     'RandomRotate', 'AdjustGamma', 'CLAHE', 'Rerange', 'RGB2Gray',

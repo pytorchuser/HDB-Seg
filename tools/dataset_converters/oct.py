@@ -44,13 +44,13 @@ def main():
         out_dir = args.out_dir
 
     print('Making directories...')
-    mmcv.mkdir_or_exist(out_dir)
-    mmcv.mkdir_or_exist(osp.join(out_dir, 'images'))
-    mmcv.mkdir_or_exist(osp.join(out_dir, 'images', 'training'))
-    mmcv.mkdir_or_exist(osp.join(out_dir, 'images', 'validation'))
-    mmcv.mkdir_or_exist(osp.join(out_dir, 'annotations'))
-    mmcv.mkdir_or_exist(osp.join(out_dir, 'annotations', 'training'))
-    mmcv.mkdir_or_exist(osp.join(out_dir, 'annotations', 'validation'))
+    # mmcv.mkdir_or_exist(out_dir)
+    # mmcv.mkdir_or_exist(osp.join(out_dir, 'images'))
+    # mmcv.mkdir_or_exist(osp.join(out_dir, 'images', 'training'))
+    # mmcv.mkdir_or_exist(osp.join(out_dir, 'images', 'validation'))
+    # mmcv.mkdir_or_exist(osp.join(out_dir, 'annotations'))
+    # mmcv.mkdir_or_exist(osp.join(out_dir, 'annotations', 'training'))
+    # mmcv.mkdir_or_exist(osp.join(out_dir, 'annotations', 'validation'))
 
     print('Generating images...')
     for now_path in images_path:

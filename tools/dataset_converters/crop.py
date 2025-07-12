@@ -7,11 +7,11 @@ import numpy as np
 import mmcv
 from mmengine.utils import mkdir_or_exist
 
-BASE_DIR = '../../data/Duke_OCT_dataset2015_BOE_Chiu/pad'
+BASE_DIR = '../../data/Needle1'
 IN_DIR = BASE_DIR + ''
 OUT_DIR = BASE_DIR + '/cropped'
-SIZE = (512, 512)  # img(h,w)
-MODE = 'top_left'
+SIZE = (1024, 1664)  # 注意这里是img(h,w)
+MODE = 'center'
 
 
 def parse_args():
@@ -21,6 +21,8 @@ def parse_args():
     parser.add_argument('--img_train', default='images/training', help='the path of train img')
     parser.add_argument('--img_val', default='images/validation', help='the path of val img')
     parser.add_argument('--ann_val', default='annotations/validation', help='the path of val seg')
+    parser.add_argument('--img_test', default='images/testing', help='the path of val img')
+    parser.add_argument('--ann_test', default='annotations/testing', help='the path of val seg')
     parser.add_argument('--base_dir', default=BASE_DIR, help='path of the dataset directory')
     parser.add_argument('--in_dir', default=IN_DIR, help='the path of dataset origin img')
     parser.add_argument('-o', '--out_dir', default=OUT_DIR, help='output path')
@@ -32,7 +34,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    images_path = [args.ann_train, args.ann_val, args.img_train, args.img_val]
+    images_path = [args.ann_train, args.ann_val, args.img_train, args.img_val, args.img_test, args.ann_test]
     if args.out_dir is None:
         out_dir = osp.join(args.base_dir, 'cropped')
     else:
@@ -43,25 +45,32 @@ def main():
     mkdir_or_exist(osp.join(out_dir, 'images'))
     mkdir_or_exist(osp.join(out_dir, 'images', 'training'))
     mkdir_or_exist(osp.join(out_dir, 'images', 'validation'))
+    mkdir_or_exist(osp.join(out_dir, 'images', 'testing'))
     mkdir_or_exist(osp.join(out_dir, 'annotations'))
     mkdir_or_exist(osp.join(out_dir, 'annotations', 'training'))
     mkdir_or_exist(osp.join(out_dir, 'annotations', 'validation'))
+    mkdir_or_exist(osp.join(out_dir, 'annotations', 'testing'))
 
     print('Cropping images...')
     for now_path in images_path:
         img_path = osp.join(args.in_dir, now_path)
+        print(img_path)
         for filename in sorted(os.listdir(img_path)):
             file_path = str(osp.join(img_path, filename))
             out_path = osp.join(args.out_dir, now_path, filename)
+            print(file_path, out_path)
             if file_path.endswith('png'):
                 img = mmcv.imread(file_path)
                 h, w, c = img.shape
+                print(img.shape)
                 crop_h, crop_w = args.crop_size
                 y1, x1, y2, x2 = 0, 0, crop_h-1, crop_w-1
                 mode = args.crop_mode
                 if crop_h > h or crop_w > w or mode is None:
+                    print('不处理')
                     continue
                 elif mode == 'center':
+                    print('进入裁剪')
                     y1 = max(0, int(round((h - crop_h) / 2.)))
                     x1 = max(0, int(round((w - crop_w) / 2.)))
                     y2 = min(h, y1 + crop_h) - 1

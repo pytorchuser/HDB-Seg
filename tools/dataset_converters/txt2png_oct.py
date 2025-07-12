@@ -8,10 +8,13 @@ import numpy as np
 import json
 
 
-TXT_DIR = "D:/dataset/OCTdataset/OCT_Manual_Delineations-2018_June_29（HCMS）/output/label"
-IMG_DIR = "D:/dataset/OCTdataset/OCT_Manual_Delineations-2018_June_29（HCMS）/output/image"
-SEG_DIR = "D:/dataset/OCTdataset/OCT_Manual_Delineations-2018_June_29（HCMS）/output/seg"
+# TXT_DIR = "D:/dataset/OCTdataset/OCT_Manual_Delineations-2018_June_29（HCMS）/output/label"
+# IMG_DIR = "D:/dataset/OCTdataset/OCT_Manual_Delineations-2018_June_29（HCMS）/output/image"
+# SEG_DIR = "D:/dataset/OCTdataset/OCT_Manual_Delineations-2018_June_29（HCMS）/output/seg"
 
+TXT_DIR = "D:/dataset/needle/1/0/txt"
+IMG_DIR = "D:/dataset/needle/1/0/image"
+SEG_DIR = "D:/dataset/needle/1/0/seg"
 
 def txt2png():
     label_list = sorted(list(Path(TXT_DIR).glob('*.txt')))

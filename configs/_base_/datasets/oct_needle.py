@@ -1,9 +1,13 @@
 # dataset settings
-dataset_type = 'OCTDuke2015Dataset'
-# data_root = '../data/Duke_OCT_dataset2015_BOE_Chiu/cropped'
-data_root = '../data/Duke_OCT_dataset2015_BOE_Chiu/robot'
-img_scale = (512, 512)
+dataset_type = 'OCTNeedleDataset'
+# training dataset root
+# data_root = '../data/OCT_Manual_Delineations-2018_June_29(HCMS)/pad/train'
+# testing dataset root
+data_root = '../data/Needle1/cropped'
+img_scale = (1664, 1024)
 crop_size = (512, 512)
+# img_scale = (1024, 128)
+# crop_size = (128, 128)
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations',  reduce_zero_label=False),
@@ -12,6 +16,7 @@ train_pipeline = [
         scale=img_scale,
         ratio_range=(0.5, 2.0),
         keep_ratio=False),
+    # dict(type='Pad', size=(1024, 512), padding_mode='edge'),
     dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.75),
     dict(type='RandomFlip', prob=0.5),
     dict(type='PhotoMetricDistortion'),
@@ -22,6 +27,7 @@ test_pipeline = [
     dict(type='Resize', scale=img_scale, keep_ratio=False),
     # add loading annotation after ``Resize`` because ground truth
     # does not need to do resize data transform
+    # dict(type='Pad', size=(1024, 512), padding_mode='edge'),
     dict(type='LoadAnnotations', reduce_zero_label=False),
     dict(type='PackSegInputs')
 ]
@@ -32,7 +38,7 @@ tta_pipeline = [
         type='TestTimeAug',
         transforms=[
             [
-                dict(type='Resize', scale_factor=r, keep_ratio=True)
+                dict(type='Resize', scale_factor=r, keep_ratio=False)
                 for r in img_ratios
             ],
             [

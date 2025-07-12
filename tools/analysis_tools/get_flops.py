@@ -19,8 +19,9 @@ try:
 except ImportError:
     raise ImportError('Please upgrade mmengine >= 0.6.0 to use this script.')
 
-CONFIG = '../../configs/unet/unet-s5-d16_pspnet_4xb4-ce-1.0-dice-3.0-40k_hrf-256x256.py'
-SIZE = [512, 512]
+# CONFIG = '../../configs/unet/unet-s5-d16_pspnet_4xb4-ce-1.0-dice-3.0-40k_hrf-256x256.py'
+CONFIG = '../../configs/swin/my_upernet_swin_tiny_patch4_window7_512x512_160k_ade20k_pretrain_224x224_1K.py'
+SIZE = [256, 256]
 
 def parse_args():
     parser = argparse.ArgumentParser(
