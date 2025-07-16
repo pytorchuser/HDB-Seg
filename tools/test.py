@@ -7,11 +7,11 @@ from mmengine.config import Config, DictAction
 from mmengine.runner import Runner
 
 
-FILENAME = 'T_88_3lr_robot_crop512_epoch50_1x'
+FILENAME = 'T_88_3lr_swin_needle1_epoch500_1x'
 
 CONFIG = '../configs/swin/my_upernet_swin_tiny_patch4_window7_512x512_160k_ade20k_pretrain_224x224_1K.py'
 # CHECKPOINT = '../tools/output/train/' + FILENAME + '/best_mDice_epoch_30.pth'
-CHECKPOINT = '../tools/output/train/T_88_3lr_check_srpth_famsar_bafe_dice3&ce1_0.2bg_LS10_duke2015crop512_epoch50_1x/best_mDice_epoch_37.pth'
+CHECKPOINT = '../tools/output/train/T_88_3lr_swin_dice3&ce1_0.5bg_LS10_needle1_pretrain-uperswin_epoch500_1x/best_mDice_epoch_495.pth'
 WORK_DIR = 'output/test/' + FILENAME
 OUT = 'output/test/' + FILENAME + '/result'
 SHOW_DIR = 'output/test/' + FILENAME

@@ -11,7 +11,7 @@ from mmengine.utils import mkdir_or_exist
 
 TRAINING_PATH = '../../data/DRIVE/training.zip'
 TESTING_PATH = '../../data/DRIVE/training.zip'
-OUT_DIR = '../../data/DRIVE/new'
+OUT_DIR = '../../data/DRIVE/new_test'
 
 
 def parse_args():

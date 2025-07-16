@@ -11,7 +11,7 @@ BASE_DIR = '../../data/Needle1'
 IN_DIR = BASE_DIR + ''
 OUT_DIR = BASE_DIR + '/cropped'
 SIZE = (1024, 1664)  # 注意这里是img(h,w)
-MODE = 'center'
+MODE = 'left_top'
 
 
 def parse_args():
@@ -34,7 +34,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    images_path = [args.ann_train, args.ann_val, args.img_train, args.img_val, args.img_test, args.ann_test]
+    images_path = [args.img_train, args.img_val, args.img_test]
     if args.out_dir is None:
         out_dir = osp.join(args.base_dir, 'cropped')
     else:
@@ -78,6 +78,10 @@ def main():
                 elif mode == 'top_center':
                     y1, x1, y2, x2 = 0, max(0, int(round((w - crop_w) / 2.))), crop_h, min(w, x1 + crop_w) - 1
                 bboxes = np.array([x1, y1, x2, y2])
+                print(bboxes)
+                # 为了处理颜色为红色[0,0,255]的单一标注图，选择通道2，将255变为1
+                # new_img = mmcv.imcrop(img[:, :, 2] // 128, bboxes)
+                # 非标注图的裁剪
                 new_img = mmcv.imcrop(img[:, :, 0], bboxes)
                 mmcv.imwrite(new_img, out_path)
 

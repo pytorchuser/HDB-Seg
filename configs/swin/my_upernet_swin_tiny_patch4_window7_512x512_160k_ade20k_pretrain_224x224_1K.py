@@ -2,8 +2,8 @@ _base_ = [
     '../_base_/models/upernet_custom_swin.py', '../_base_/datasets/oct_needle.py',
     '../_base_/default_runtime.py', '../_base_/schedules/schedule_epoch.py'
 ]
-# load_from = '../pth/upernet_swin_tiny_patch4_window7_512x512_160k_ade20k_pretrain_224x224_1K_20210531_112542-e380ad3e.pth'  # noqa
-# load_from = '../pth/swin&res_best_mDice_epoch_68_joint.pth'  # noqa
+load_from = '../pth/upernet_swin_tiny_patch4_window7_512x512_160k_ade20k_pretrain_224x224_1K_20210531_112542-e380ad3e.pth'  # noqa
+# load_from = '../pth/best_mDice_epoch_415.pth'  # noqa
 NUM_CLASSES = 2
 
 data_preprocessor = dict(size=(512, 512))
@@ -79,7 +79,7 @@ model = dict(
 optimizer = dict(
      _delete_=True,
      type='AdamW',
-     lr=0.00018,
+     lr=0.00012,
      betas=(0.9, 0.999),
      weight_decay=0.01,
      )
@@ -117,7 +117,7 @@ param_scheduler = [
         end_factor=1,
         by_epoch=True,
         begin=0,
-        end=10),
+        end=100),
     # dict(
     #     type='PolyParamScheduler',
     #     param_name='lr',
@@ -129,9 +129,9 @@ param_scheduler = [
     dict(
         type='StepParamScheduler',
         param_name='lr',
-        step_size=5,
-        begin=10,
-        end=100,
+        step_size=20,
+        begin=100,
+        end=500,
         gamma=0.8,
         by_epoch=True)
     # dict(
@@ -194,19 +194,19 @@ param_scheduler = [
 # By default, models are trained on 8 GPUs with 2 images per GPU
 # CUDA out of memory。 加载验证数据集时内存会爆掉， workers_per_gpu设置的小一些可避免这个问题
 train_dataloader = dict(
-    batch_size=8
+    batch_size=4
 )
 val_dataloader = dict(
-    batch_size=8,
-    num_workers=1,
+    batch_size=4,
+    num_workers=4,
     sampler=dict(
         type='DefaultSampler',
         # 训练时进行随机洗牌(shuffle)
         shuffle=True)
 )
 test_dataloader = dict(
-    batch_size=8,
-    num_workers=1,
+    batch_size=4,
+    num_workers=4,
     sampler=dict(
         type='DefaultSampler',
         # 训练时进行随机洗牌(shuffle)

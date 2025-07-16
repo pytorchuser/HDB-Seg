@@ -64,6 +64,7 @@ class IoUMetric(BaseMetric):
         if self.output_dir and is_main_process():
             mkdir_or_exist(self.output_dir)
         self.format_only = format_only
+        self.add_mad = True
 
     def process(self, data_batch: dict, data_samples: Sequence[dict]) -> None:
         """Process one batch of data and data_samples.
@@ -82,18 +83,22 @@ class IoUMetric(BaseMetric):
             if not self.format_only:
                 label = data_sample['gt_sem_seg']['data'].squeeze().to(
                     pred_label)
-                # self.results.append(
-                #     self.intersect_and_union(pred_label, label, num_classes,
-                #                              self.ignore_index))
+                if num_classes <= 2:
+                    self.add_mad = False
+                    self.results.append(
+                        self.intersect_and_union(pred_label, label, num_classes,
+                                                 self.ignore_index))
                 # 获取预测标签和真实标签边界
                 # self.results.append(
                 #     self.pred_gt_boundary(pred_label, label, num_classes, self.ignore_index)
                 # )
-                a, b, c, d = self.intersect_and_union(pred_label, label, num_classes, self.ignore_index)
-                # 获取预测标签和真实标签边界
-                pred_b, gt_b = self.pred_gt_boundary(pred_label, label, num_classes, self.ignore_index)
-                list1 = (a, b, c, d, pred_b, gt_b)
-                self.results.append(tuple(list1))
+                else:
+                    self.add_mad = True
+                    a, b, c, d = self.intersect_and_union(pred_label, label, num_classes, self.ignore_index)
+                    # 获取预测标签和真实标签边界
+                    pred_b, gt_b = self.pred_gt_boundary(pred_label, label, num_classes, self.ignore_index)
+                    list1 = (a, b, c, d, pred_b, gt_b)
+                    self.results.append(tuple(list1))
             # format_result
             if self.output_dir is not None:
                 basename = osp.splitext(osp.basename(
@@ -130,7 +135,10 @@ class IoUMetric(BaseMetric):
         # ([A_1, ..., A_n], ..., [D_1, ..., D_n])
         results = tuple(zip(*results))
         # 添加mad之后，长度从4->6
-        assert len(results) == 6
+        if self.add_mad:
+            assert len(results) == 6
+        else:
+            assert len(results) == 4
 
         total_area_intersect = sum(results[0])
         total_area_union = sum(results[1])
@@ -167,11 +175,12 @@ class IoUMetric(BaseMetric):
 
         print_log('per class results:', logger)
         print_log('\n' + class_table_data.get_string(), logger=logger)
-        # results[4]和[5]存储边界值，写一个方法实现MAD计算：
-        mad_metrics = self.mean_absolute_difference(results[4], results[5])
-        metrics['mad'] = mad_metrics
-        # results[4]和[5]存储边界值，写一个方法实现层厚度计算：
-        metrics['thick_pred'], metrics['thick_gt'] = self.metrics_layer_thickness(results[4], results[5])
+        if self.add_mad:
+            # results[4]和[5]存储边界值，写一个方法实现MAD计算：
+            mad_metrics = self.mean_absolute_difference(results[4], results[5])
+            metrics['mad'] = mad_metrics
+            # results[4]和[5]存储边界值，写一个方法实现层厚度计算：
+            metrics['thick_pred'], metrics['thick_gt'] = self.metrics_layer_thickness(results[4], results[5])
         return metrics
 
     @staticmethod
