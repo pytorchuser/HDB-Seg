@@ -12,7 +12,7 @@ from mmseg.registry import RUNNERS
 CUDA_LAUNCH_BLOCKING = 1
 # swin_trans
 CONFIG = '../configs/swin/my_upernet_swin_tiny_patch4_window7_512x512_160k_ade20k_pretrain_224x224_1K.py'
-WORK_DIR = 'output/train/T_88_2lr_swin_dice3&ce1_0.5bg_LrLR100Step20_500_needle1_pretrain-uperswin_epoch500_1x'
+WORK_DIR = 'output/train/T_88_1lr_swin_dice3&ce1_0.5bg_LrLR100Step20_500_needle1_pretrain-uperswin_epoch500_1x'
 # # WORK_DIR = 'output/train/T_88_3lr_check_srpth_concat_bafe_dice3&ce1_0.2bg_LS10_duke2015crop512_epoch50_1x'
 
 # res_uper

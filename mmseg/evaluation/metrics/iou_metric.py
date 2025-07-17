@@ -65,6 +65,7 @@ class IoUMetric(BaseMetric):
             mkdir_or_exist(self.output_dir)
         self.format_only = format_only
         self.add_mad = True
+        self.exclude_background = True
 
     def process(self, data_batch: dict, data_samples: Sequence[dict]) -> None:
         """Process one batch of data and data_samples.
@@ -149,6 +150,12 @@ class IoUMetric(BaseMetric):
             total_area_label, self.metrics, self.nan_to_num, self.beta)
         class_names = self.dataset_meta['classes']
 
+        # exclude_background 排除背景后计算模型效率
+        if self.exclude_background:
+            ret_metrics = {
+                k: v if k == 'aAcc' else v[1:]
+                for k, v in ret_metrics.items()
+            }
         # summary table
         ret_metrics_summary = OrderedDict({
             ret_metric: np.round(np.nanmean(ret_metric_value) * 100, 2)
@@ -167,6 +174,8 @@ class IoUMetric(BaseMetric):
             ret_metric: np.round(ret_metric_value * 100, 2)
             for ret_metric, ret_metric_value in ret_metrics.items()
         })
+        if self.exclude_background:
+            class_names = class_names[1:]
         ret_metrics_class.update({'Class': class_names})
         ret_metrics_class.move_to_end('Class', last=False)
         class_table_data = PrettyTable()

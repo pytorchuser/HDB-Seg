@@ -34,7 +34,7 @@ param_scheduler = [
 ]
 # training schedule by epoch
 train_cfg = dict(
-    type='EpochBasedTrainLoop', max_epochs=500, val_begin=0, val_interval=5)
+    type='EpochBasedTrainLoop', max_epochs=500, val_begin=50, val_interval=5)
 val_cfg = dict(type='ValLoop')
 test_cfg = dict(type='TestLoop')
 # 默认钩子(hook)配置
