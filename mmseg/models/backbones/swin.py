@@ -638,6 +638,7 @@ class SwinTransformer(BaseModule):
         """Convert the model into training mode while keep layers freezed."""
         super().train(mode)
         self._freeze_stages()
+        return self
 
     def _freeze_stages(self):
         if self.frozen_stages >= 0:

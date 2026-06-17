@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import torch
 import timm
-
+from mmseg.models.backbones import SwinTransformer
 from pytorch_grad_cam import GradCAM, ScoreCAM, GradCAMPlusPlus, AblationCAM, XGradCAM, EigenCAM,EigenGradCAM, LayerCAM, FullGrad
 
 from pytorch_grad_cam.utils.image import show_cam_on_image, preprocess_image
@@ -14,10 +14,11 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--use-cuda', action='store_true', default=False,
                         help='Use NVIDIA GPU acceleration')
+    # TODO 启动前修改原图片地址
     parser.add_argument(
         '--image-path',
         type=str,
-        default='./examples/both.png',
+        default='C:/Users/cy/anaconda3/envs/swin_trans/mysegmentationpackage/data/Needle1/cropped/images/testing/1_29w_431.png',
         help='Input image path')
     parser.add_argument('--aug_smooth', action='store_true',
                         help='Apply test time augmentation to smooth the CAM')
@@ -26,12 +27,22 @@ def get_args():
         action='store_true',
         help='Reduce noise by taking the first principle componenet'
         'of cam_weights*activations')
-
+    # TODO 启动前修改出热力图具体方法
     parser.add_argument(
         '--method',
         type=str,
-        default='scorecam',
+        default='gradcam',
         help='Can be gradcam/gradcam++/scorecam/xgradcam/ablationcam')
+    # methods = \
+    #     {"gradcam": GradCAM,
+    #      "scorecam": ScoreCAM,
+    #      "gradcam++": GradCAMPlusPlus,
+    #      "ablationcam": AblationCAM,
+    #      "xgradcam": XGradCAM,
+    #      "eigencam": EigenCAM,
+    #      "eigengradcam": EigenGradCAM,
+    #      "layercam": LayerCAM,
+    #      "fullgrad": FullGrad}
 
     args = parser.parse_args()
     args.use_cuda = args.use_cuda and torch.cuda.is_available()
@@ -41,6 +52,8 @@ def get_args():
         print('Using CPU for computation')
 
     return args
+
+# TODO 第二步：根据目标层结构改写reshape_transform方法
 
 
 def reshape_transform(tensor, height=7, width=7):
@@ -74,13 +87,15 @@ if __name__ == '__main__':
     if args.method not in list(methods.keys()):
         raise Exception(f"method should be one of {list(methods.keys())}")
 
-    model = timm.create_model('swin_base_patch4_window7_224', pretrained=True)
+    # model = timm.create_model('swin_base_patch4_window7_224', pretrained=True)
+    model = SwinTransformer()
     model.eval()
 
     if args.use_cuda:
         model = model.cuda()
-
-    target_layers = [model.layers[-1].blocks[-1].norm2]
+    # TODO 第一步找到模型目标层(swin层
+    # target_layers = [model.layers[-1].blocks[-1].norm2]
+    target_layers = [model.stages[-1].blocks[-1].norm2]
 
     if args.method not in methods:
         raise Exception(f"Method {args.method} not implemented")
