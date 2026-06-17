@@ -1,9 +1,9 @@
 _base_ = [
-    '../_base_/models/fcn_unet_s5-d16.py', '../_base_/datasets/oct_hcms2018.py',
+    '../_base_/models/fcn_unet_s5-d16.py', '../_base_/datasets/oct_needle.py',
     '../_base_/default_runtime.py', '../_base_/schedules/schedule_epoch.py'
 ]
 load_from = '../pth/fcn_unet_s5-d16_4x4_512x1024_160k_cityscapes_20211210_145204-6860854e.pth'  # noqa
-NUM_CLASSES = 9
+NUM_CLASSES = 2
 
 data_preprocessor = dict(size=(512, 512))
 
@@ -20,7 +20,7 @@ model = dict(
 optimizer = dict(
      _delete_=True,
      type='AdamW',
-     lr=0.00018,
+     lr=0.00012,
      betas=(0.9, 0.999),
      weight_decay=0.01,
      )
@@ -49,7 +49,7 @@ param_scheduler = [
         end_factor=1,
         by_epoch=True,
         begin=0,
-        end=10),
+        end=100),
     # dict(
     #     type='PolyParamScheduler',
     #     param_name='lr',
@@ -61,9 +61,9 @@ param_scheduler = [
     dict(
         type='StepParamScheduler',
         param_name='lr',
-        step_size=7,
-        begin=10,
-        end=50,
+        step_size=5,
+        begin=100,
+        end=500,
         gamma=0.8,
         by_epoch=True)]
 train_dataloader = dict(
@@ -71,7 +71,7 @@ train_dataloader = dict(
 )
 val_dataloader = dict(
     batch_size=8,
-    num_workers=1,
+    num_workers=4,
     sampler=dict(
         type='DefaultSampler',
         # 训练时进行随机洗牌(shuffle)
@@ -79,7 +79,7 @@ val_dataloader = dict(
 )
 test_dataloader = dict(
     batch_size=8,
-    num_workers=1,
+    num_workers=4,
     sampler=dict(
         type='DefaultSampler',
         # 训练时进行随机洗牌(shuffle)

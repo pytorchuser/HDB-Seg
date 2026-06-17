@@ -1,9 +1,9 @@
 _base_ = [
-    '../_base_/models/pspnet_unet_s5-d16.py', '../_base_/datasets/oct_hcms2018.py',
+    '../_base_/models/pspnet_unet_s5-d16.py', '../_base_/datasets/oct_needle.py',
     '../_base_/default_runtime.py', '../_base_/schedules/schedule_epoch.py'
 ]
 load_from = '../pth/pspnet_unet_s5-d16_ce-1.0-dice-3.0_256x256_40k_hrf_20211210_201823-53d492fa.pth'  # noqa
-NUM_CLASSES = 9
+NUM_CLASSES = 2
 
 data_preprocessor = dict(size=(512, 512))
 
@@ -16,13 +16,13 @@ model = dict(
     auxiliary_head=dict(num_classes=NUM_CLASSES)
 )
 # AdamW optimizer, no weight decay for position embedding & layer norm in backbone
-# optimizer = dict(
-#      _delete_=True,
-#      type='AdamW',
-#      lr=0.00018,
-#      betas=(0.9, 0.999),
-#      weight_decay=0.01,
-#      )
+optimizer = dict(
+     _delete_=True,
+     type='AdamW',
+     lr=0.00015,
+     betas=(0.9, 0.999),
+     weight_decay=0.01,
+     )
 # optim_wrapper = dict(
 #     # 优化器包装器(Optimizer wrapper)为更新参数提供了一个公共接口
 #     type='AmpOptimWrapper',
@@ -47,7 +47,7 @@ param_scheduler = [
         end_factor=1,
         by_epoch=True,
         begin=0,
-        end=10),
+        end=150),
     # dict(
     #     type='PolyParamScheduler',
     #     param_name='lr',
@@ -59,9 +59,9 @@ param_scheduler = [
     dict(
         type='StepParamScheduler',
         param_name='lr',
-        step_size=7,
-        begin=10,
-        end=50,
+        step_size=10,
+        begin=150,
+        end=500,
         gamma=0.8,
         by_epoch=True)]
 train_dataloader = dict(
@@ -69,7 +69,7 @@ train_dataloader = dict(
 )
 val_dataloader = dict(
     batch_size=8,
-    num_workers=1,
+    num_workers=4,
     sampler=dict(
         type='DefaultSampler',
         # 训练时进行随机洗牌(shuffle)
@@ -77,7 +77,7 @@ val_dataloader = dict(
 )
 test_dataloader = dict(
     batch_size=8,
-    num_workers=1,
+    num_workers=4,
     sampler=dict(
         type='DefaultSampler',
         # 训练时进行随机洗牌(shuffle)

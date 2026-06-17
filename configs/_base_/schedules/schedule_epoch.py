@@ -34,7 +34,7 @@ param_scheduler = [
 ]
 # training schedule by epoch
 train_cfg = dict(
-    type='EpochBasedTrainLoop', max_epochs=500, val_begin=50, val_interval=5)
+    type='EpochBasedTrainLoop', max_epochs=500, val_begin=50, val_interval=4)
 val_cfg = dict(type='ValLoop')
 test_cfg = dict(type='TestLoop')
 # 默认钩子(hook)配置
@@ -52,7 +52,7 @@ default_hooks = dict(
                     interval=5,
                     max_keep_ckpts=1,
                     save_last=False,
-                    save_best=['mDice'],
+                    save_best=['mIoU'],
                     rule='greater'),
     # 用于分布式训练的数据加载采样器
     sampler_seed=dict(type='DistSamplerSeedHook'),

@@ -1,10 +1,10 @@
 _base_ = [
-    '../_base_/models/upernet_custom_res.py', '../_base_/datasets/oct_duke2015.py',
+    '../_base_/models/upernet_custom_res.py', '../_base_/datasets/oct_needle.py',
     '../_base_/default_runtime.py', '../_base_/schedules/schedule_epoch.py'
 ]
 # load_from = '../pth/upernet_swin_tiny_patch4_window7_512x512_160k_ade20k_pretrain_224x224_1K_20210531_112542-e380ad3e.pth'  # noqa
 load_from = '../pth/upernet_r50_512x512_160k_ade20k_20200615_184328-8534de8d.pth'  # noqa
-NUM_CLASSES = 10
+NUM_CLASSES = 2
 
 data_preprocessor = dict(size=(512, 512))
 
@@ -62,7 +62,7 @@ model = dict(
 optimizer = dict(
      _delete_=True,
      type='AdamW',
-     lr=0.00018,
+     lr=0.00012,
      betas=(0.9, 0.999),
      weight_decay=0.01,
      )
@@ -100,7 +100,7 @@ param_scheduler = [
         end_factor=1,
         by_epoch=True,
         begin=0,
-        end=10),
+        end=100),
     # dict(
     #     type='PolyParamScheduler',
     #     param_name='lr',
@@ -113,8 +113,8 @@ param_scheduler = [
         type='StepParamScheduler',
         param_name='lr',
         step_size=5,
-        begin=10,
-        end=100,
+        begin=100,
+        end=500,
         gamma=0.8,
         by_epoch=True)
     # dict(
@@ -180,16 +180,16 @@ train_dataloader = dict(
     batch_size=8
 )
 val_dataloader = dict(
-    batch_size=8,
-    num_workers=1,
+    batch_size=4,
+    num_workers=4,
     sampler=dict(
         type='DefaultSampler',
         # 训练时进行随机洗牌(shuffle)
         shuffle=True)
 )
 test_dataloader = dict(
-    batch_size=8,
-    num_workers=1,
+    batch_size=4,
+    num_workers=4,
     sampler=dict(
         type='DefaultSampler',
         # 训练时进行随机洗牌(shuffle)

@@ -12,20 +12,20 @@ from mmseg.registry import RUNNERS
 CUDA_LAUNCH_BLOCKING = 1
 # swin_trans
 CONFIG = '../configs/swin/my_upernet_swin_tiny_patch4_window7_512x512_160k_ade20k_pretrain_224x224_1K.py'
-WORK_DIR = 'output/train/T_88_1lr_swin_dice3&ce1_0.5bg_LrLR100Step20_500_needle1_pretrain-uperswin_epoch500_1x'
-# # WORK_DIR = 'output/train/T_88_3lr_check_srpth_concat_bafe_dice3&ce1_0.2bg_LS10_duke2015crop512_epoch50_1x'
+WORK_DIR = 'output/train/T_88_1.5lr_UFEBA3_dice3&ce1_interval4_lr100ReduceOnPp7f0.7_needle1_pretrain-uperswin_epoch500_1x'
+# WORK_DIR = 'output/train/T_88_3lr_check_srpth_concat_bafe_dice3&ce1_0.2bg_LS10_duke2015crop512_epoch50_1x'
 
 # res_uper
 # CONFIG = '../configs/swin/my_upernet_resnet_512x512_160k_ade20k_pretrain_224x224_1K.py'
-# WORK_DIR = 'output/train/T_88_3lr_resuper_ce1dice3_LS10_hcms2018crop512_epoch800_1x'
+# WORK_DIR = 'output/train/T_88_2lr_resuper_ce1dice3_interval4_LS100step5_needle1_epoch500_1x'
 
 # u-net(fcn)
 # CONFIG = '../configs/unet/unet-s5-d16_fcn_4xb4-160k_cityscapes-512x1024.py'
-# WORK_DIR = 'output/train/oct_T_88_3lr_adamW_unet-s5-d16_fcn_city_hcms2018crop512_epoch50_1x'
+# WORK_DIR = 'output/train/oct_T_88__2lr_adamW_unet-s5-d16_fcn_city_interval4_LS100step5_needle1_epoch500_1x'
 
 # u-net(psp)
 # CONFIG = '../configs/unet/unet-s5-d16_pspnet_4xb4-ce-1.0-dice-3.0-40k_hrf-256x256.py'
-# WORK_DIR = 'output/train/oct_T_48_3lr_unet-s5-d16_psp_hrf_hcms2018_epoch100_1x'
+# WORK_DIR = 'output/train/oct_T_48_2.5lr_unet-s5-d16_psp_hrf_interval4_LS150step10g0.7_needle1_epoch500_1x'
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a segmentor')
