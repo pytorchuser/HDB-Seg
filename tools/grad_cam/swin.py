@@ -1,49 +1,47 @@
 import torch
 import cv2
 import numpy as np
+import timm
 from torchvision import transforms
 from pytorch_grad_cam import GradCAM
 from pytorch_grad_cam.utils.image import show_cam_on_image
-from mmseg.models.backbones import SwinTransformer
 
-# ===== 1. 创建模型（必须传参初始化） =====
-model = SwinTransformer(
-    pretrain_img_size=512,
-    embed_dims=96,
-    depths=(2, 2, 6, 2),
-    num_heads=(3, 6, 12, 24),
-    window_size=7,
-    out_indices=(0, 1, 2, 3)
-)
-model.init_weights()
-
-original_forward = model.forward
-model.forward = lambda x: original_forward(x)[-1]
+# ===== 1. 创建模型（使用 timm 的 ImageNet 预训练权重） =====
+model = timm.create_model('swin_tiny_patch4_window7_224', pretrained=True)
 model.eval()
 if torch.cuda.is_available():
     model.cuda()
 
 # ===== 2. 指定 Grad-CAM 目标层 =====
-# MMSegmentation 的 SwinTransformer 用 self.stages (ModuleList) 存储 4 个 Stage
-target_layers = [model.stages[-1].blocks[-1].norm2]
+# timm 的 SwinTransformer 用 layers (Sequential) 存储 4 个 Stage
+# Stage 4 输出 7×7 patches, 768 channels
+target_layers = [model.layers[-1].blocks[-1].norm2]
 
-# ===== 3. 初始化 GradCAM =====
+# ===== 3. 定义 reshape_transform：将 3D [B, N, C] 转为 4D [B, C, H, W] =====
+# Stage 4: N=49=7×7 patches
+def reshape_transform(tensor, height=7, width=7):
+    result = tensor.reshape(tensor.size(0), height, width, tensor.size(2))
+    result = result.permute(0, 3, 1, 2).contiguous()
+    return result
+
+# ===== 4. 初始化 GradCAM =====
 cam = GradCAM(
     model=model,
     target_layers=target_layers,
+    reshape_transform=reshape_transform,
 )
 
-# ===== 4. 加载图像 =====
+# ===== 5. 加载图像 =====
 image_path = 'C:/Users/cy/anaconda3/envs/swin_trans/mysegmentationpackage/data/Needle1/cropped/images/testing/1_29w_431.png'
 
 img_bgr = cv2.imread(image_path, 1)
 img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
 img_normalized = img_rgb.astype(np.float32) / 255.0
 
-# ===== 5. 预处理 =====
+# ===== 6. 预处理（timm swin_tiny 输入为 224×224） =====
 transform = transforms.Compose([
     transforms.ToPILImage(),
-    transforms.Resize((512, 512)),
+    transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406],
                          std=[0.229, 0.224, 0.225])
@@ -54,19 +52,23 @@ input_tensor = transform(img_rgb).unsqueeze(0)
 if torch.cuda.is_available():
     input_tensor = input_tensor.cuda()
 
-# ===== 6. 生成热力图 =====
+# ===== 7. 生成热力图 =====
+# 分类模型用 targets=None，自动取 argmax 确定目标类别
 grayscale_cam = cam(
     input_tensor=input_tensor,
-    targets=[lambda t: t.sum()]
+    targets=None
 )
 
 grayscale_cam = grayscale_cam[0, :]
 
-# ===== 7. 插值到原图大小并叠加 =====
-cam_resized = cv2.resize(grayscale_cam, (512, 512),
+# 打印热力图数值范围检查
+print(f"热力图数值范围: min={grayscale_cam.min():.6f}, max={grayscale_cam.max():.6f}, mean={grayscale_cam.mean():.6f}")
+
+# ===== 8. 插值到原图大小并叠加 =====
+cam_resized = cv2.resize(grayscale_cam, (224, 224),
                           interpolation=cv2.INTER_LINEAR)
 
-img_resized = cv2.resize(img_normalized, (512, 512))
+img_resized = cv2.resize(img_normalized, (224, 224))
 
 visualization = show_cam_on_image(
     img_resized,
@@ -74,8 +76,8 @@ visualization = show_cam_on_image(
     use_rgb=True
 )
 
-# ===== 8. 保存结果 =====
-cv2.imwrite('gradcam_result.png',
-            cv2.cvtColor(visualization, cv2.COLOR_RGB2BGR))
-print("热力图已保存到 gradcam_result.png")
-
+# ===== 9. 保存结果 =====
+import os
+output_path = os.path.join(os.path.dirname(__file__), 'gradcam_result.png')
+cv2.imwrite(output_path, cv2.cvtColor(visualization, cv2.COLOR_RGB2BGR))
+print(f"热力图已保存到 {output_path}")
