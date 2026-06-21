@@ -3,10 +3,8 @@ warnings.filterwarnings('ignore')
 warnings.simplefilter('ignore')
 from torchvision.models.segmentation import deeplabv3_resnet50
 import torch
-import torch.nn.functional as F
 import numpy as np
 import requests
-import torchvision
 from PIL import Image
 from pytorch_grad_cam.utils.image import show_cam_on_image, preprocess_image
 from pytorch_grad_cam import GradCAM
@@ -67,6 +65,3 @@ with GradCAM(model=model,
     cam_image = show_cam_on_image(rgb_img, grayscale_cam, use_rgb=True)
 
 Image.fromarray(cam_image)
-
-output = model(input_tensor)
-print(type(output), output.keys())
