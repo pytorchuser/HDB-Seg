@@ -1,0 +1,37 @@
+目标模型（SIMSwinTransformerPlus） vs 标准 SwinTransformer 结构对比
+标准 SwinTransformer 结构
+
+Input (3, 512, 512)
+  → PatchEmbed → [B, 16384, 96]
+  → Stage1: SwinBlock×2 (W-MSA + SW-MSA) → PatchMerging → [B, 4096, 192]
+  → Stage2: SwinBlock×2 → PatchMerging → [B, 1024, 384]
+  → Stage3: SwinBlock×6 → PatchMerging → [B, 256, 768]
+  → Stage4: SwinBlock×2 (no downsample) → [B, 256, 768]  ← 最顶层
+  → norm0~norm3 → 4个输出送解码头
+推荐 GradCAM 目标层：model.backbone.stages[i] 或 model.backbone.norm{i}
+
+SIMSwinTransformerPlus 结构（你的目标模型）
+
+Input (3, 512, 512)
+  ┌─ Swin 分支 ─────────────────────┐  ┌─ ResNetPlus 分支 ────────────┐
+  │ PatchEmbed → [B,16384,96]       │  │ Conv2d → MaxPool            │
+  │ Stage1: SimBlock×2 +            │  │ ResLayer1: 64→256  [128²]   │
+  │   SwinBlock×2 → FCMLayer       │  │ ResLayer2: 256→512 [64²]   │
+  │   → [B,4096,192]                │  │ ResLayer3: 512→1024 [32²]  │
+  │ Stage2: SimBlock×2 +            │  │ ResLayer4: 1024→2048 [16²] │
+  │   SwinBlock×2 → FCMLayer       │  │                             │
+  │   → [B,1024,384]                │  └─────────────────────────────┘
+  │ Stage3: SimBlock×2 +            │           ↓
+  │   SwinBlock×6 → FCMLayer        │     fam_layers[0..3] 融合
+  │   → [B,256,768]                 │     每个 FamLayer = ChannelAtt
+  │ Stage4: SimBlock×2 +            │     + StripPooling + BilinearPool
+  │   SwinBlock×2 → [B,256,768]    │     + Residual(3×C → C)
+  └─────────────────────────────────┘           ↓
+                                      4个输出送 UPerNet 解码头
+关键差异
+对比维度	SwinTransformer	SIMSwinTransformerPlus
+分支数	单分支（Transformer）	双分支（Swin + ResNetPlus）
+下采样	PatchMerging	FCMLayer（双路长短跳跃连接）
+注意力增强	无	SimBlock（空间交互模块，每阶段2个）
+多尺度融合	无	FamLayer（ChannelAtt + StripPooling + Bilinear）
+参数规模	27.5M	78.7M

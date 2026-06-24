@@ -55,7 +55,7 @@ class SemanticSegmentationTarget:
         return (model_output[self.category, :, :] * self.mask).sum()
 
 
-target_layers = [model.model.backbone.layer4]
+target_layers = [model.backbone.layer4]
 targets = [SemanticSegmentationTarget(car_category, car_mask_float)]
 with GradCAM(model=model,
              target_layers=target_layers,
